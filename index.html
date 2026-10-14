@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#002145;overflow:hidden;font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:#fff}
+  .bar{display:flex;align-items:center;height:100%;min-height:40px;border-bottom:2px solid #14C8C0}
+  .live{display:flex;align-items:center;gap:10px;padding:0 18px;height:100%;background:#00172f;white-space:nowrap;z-index:2;box-shadow:6px 0 12px #002145}
+  .dot{width:10px;height:10px;border-radius:50%;background:#E64C00;animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(230,76,0,.7)}50%{box-shadow:0 0 0 7px rgba(230,76,0,0)}}
+  .tag{font-weight:700;letter-spacing:2px;font-size:12px;color:#E64C00}
+  .brand{font-size:13px;letter-spacing:1px;color:#58BBFF}
+  .date{font-size:13px;font-weight:600}
+  .track{flex:1;overflow:hidden;height:100%;display:flex;align-items:center;
+         mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+  .scroll{display:flex;white-space:nowrap;animation:tick 45s linear infinite}
+  .track:hover .scroll{animation-play-state:paused}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .z{display:inline-flex;align-items:baseline;gap:8px;padding:0 26px;border-right:1px solid rgba(88,187,255,.25);font-size:13px}
+  .z b{color:#14C8C0;letter-spacing:1px;font-size:11px}
+  .z span{font-variant-numeric:tabular-nums;font-weight:600;font-size:15px}
+  .z i{font-style:normal;color:#9fb3c8;font-size:11px}
+  .utc{padding:0 18px;font-size:12px;color:#9fb3c8;white-space:nowrap;font-variant-numeric:tabular-nums}
+</style></head>
+<body>
+<div class="bar">
+  <div class="live">
+    <div class="dot"></div><div class="tag">LIVE</div>
+    <div class="brand">FLOWSIGNAL&trade; FLEET TELEMETRY</div>
+    <div class="date" id="date"></div>
+  </div>
+  <div class="track"><div class="scroll" id="scroll"></div></div>
+  <div class="utc" id="utc"></div>
+</div>
+<script>
+const ZONES=[
+  ["EASTERN","America/New_York","New York"],
+  ["CENTRAL","America/Chicago","Houston"],
+  ["MOUNTAIN","America/Denver","Denver"],
+  ["ARIZONA","America/Phoenix","Phoenix"],
+  ["PACIFIC","America/Los_Angeles","Los Angeles"],
+  ["ALASKA","America/Anchorage","Anchorage"],
+  ["HAWAII","Pacific/Honolulu","Honolulu"]
+];
+const scroll=document.getElementById("scroll");
+function build(){
+  let h="";
+  for(let k=0;k<2;k++) ZONES.forEach((z,i)=>{
+    h+=`<div class="z"><b>${z[0]}</b><span id="t${k}_${i}"></span><i id="a${k}_${i}">${z[2]}</i></div>`;
+  });
+  scroll.innerHTML=h;
+}
+function tick(){
+  const now=new Date();
+  document.getElementById("date").textContent=now.toLocaleDateString("en-US",
+    {weekday:"short",month:"short",day:"numeric",year:"numeric",timeZone:"America/Chicago"});
+  ZONES.forEach((z,i)=>{
+    const t=now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",timeZone:z[1]});
+    const ab=now.toLocaleTimeString("en-US",{timeZone:z[1],timeZoneName:"short"}).split(" ").pop();
+    for(let k=0;k<2;k++){
+      document.getElementById(`t${k}_${i}`).textContent=t;
+      document.getElementById(`a${k}_${i}`).textContent=z[2]+" · "+ab;
+    }
+  });
+  document.getElementById("utc").textContent="UTC "+now.toISOString().substr(11,8);
+}
+build();tick();setInterval(tick,1000);
+</script>
+</body></html>
